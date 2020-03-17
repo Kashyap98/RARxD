@@ -4,16 +4,12 @@ import os
 class Logger:
     # init logger object
     def __init__(self, folder_path, quiet_arg):
-        if Logger.__instance is not None:
-            raise Exception("This class is a singleton!")
-        else:
-            Singleton.__instance = self
-            self.folder_path = folder_path
-            self.log_file_name = os.path.basename(folder_path[12:])
-            self.file_path = os.path.join(self.folder_path, f"{self.log_file_name}_log.txt")
-            self.quiet_mode = self.get_quiet_mode(quiet_arg)
+        self.folder_path = folder_path
+        self.log_file_name = os.path.basename(folder_path[12:])
+        self.file_path = os.path.join(self.folder_path, f"{self.log_file_name}_log.txt")
+        self.quiet_mode = self.get_quiet_mode(quiet_arg)
 
-            self.create_log_file()
+        self.create_log_file()
 
     # responsible for all logging, check if outputting to log and terminal
     def log(self, input_log):
