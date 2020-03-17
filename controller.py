@@ -13,13 +13,13 @@ parser.add_argument('--test_data', metavar='test_data', type=str, nargs='+',
                     help='y (default) to use sample data, n to download new files.', default="y")
 
 
-def create_test_folder(args):
-    folder_name = str(args.name[0]).replace(' ', '_')
+def create_test_folder(input_args):
+    folder_name = str(input_args.name[0]).replace(' ', '_')
     # make sure the folder name is valid
     if folder_name is None or folder_name == "":
         print("Invalid folder name")
         return None
-    folder_path = os.path.join(os.getcwd(), f"miniProject_{folder_name}")
+    folder_path = os.path.join(os.getcwd(), f"run_{folder_name}")
 
     # check if folder exists, if not make it.
     if os.path.exists(folder_path):
@@ -38,11 +38,11 @@ def arg_get_files(input_arg):
 
 
 args = parser.parse_args()
-folder_path = create_test_folder(args)
+final_folder_path = create_test_folder(args)
 # exit if folder is not made.
-if not folder_path:
+if not final_folder_path:
     exit()
 
 # run the helpers according to the instructions.
-logger = Logger(folder_path, args.quiet[0])
+logger = Logger(final_folder_path, args.quiet[0])
 logger.log("Completed running all helpers")
