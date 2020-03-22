@@ -2,6 +2,7 @@ import argparse
 import os
 
 from helpers.log_handler import Logger
+from helpers.accession_handler import *
 
 # define arguments for the script.
 parser = argparse.ArgumentParser(description='Arguments')
@@ -43,6 +44,10 @@ final_folder_path = create_test_folder(args)
 if not final_folder_path:
     exit()
 
-# run the helpers according to the instructions.
 logger = Logger(final_folder_path, args.quiet[0])
+
+# run all of the functions from the helper scripts
+gene_file_paths = get_list_of_accession_numbers(logger, final_folder_path)
+
 logger.log("Completed running all helpers")
+
