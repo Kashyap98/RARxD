@@ -22,12 +22,12 @@ def create_test_folder(input_args):
         return None
     folder_path = os.path.join(os.getcwd(), f"run_{folder_name}")
 
-    # check if folder exists, if not make it.
-    if os.path.exists(folder_path):
-        print("Folder name already exits. Please run cleaner.py")
-    else:
-        os.mkdir(folder_path)
-        return folder_path
+    # # check if folder exists, if not make it.
+    # if os.path.exists(folder_path):
+    #     print("Folder name already exits. Please run cleaner.py")
+    # else:
+    #     os.mkdir(folder_path)
+    return folder_path
 
 
 def arg_get_files(input_arg):
