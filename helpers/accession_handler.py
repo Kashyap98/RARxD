@@ -1,28 +1,24 @@
-import os
-import json
 
-from Bio import Entrez, SeqIO
+from pyensembl import EnsemblRelease
 
-
-def get_list_of_accession_numbers(logger, folder_path):
-    file_paths = []
-    with open(os.path.join(os.getcwd(), "sample_data.txt"), "r") as sample_file:
-        sample_data = json.loads(sample_file.read())
-        logger.log(f"Sequences found: {sample_data}")
-        # Go through each record in the json file provided by the user
-        for key, value in sample_data.items():
-            Entrez.email = "k.patel1098@gmail.com"
-            handle = Entrez.efetch(db="nucleotide", id=value, rettype="gb", retmode="text")
-            record = SeqIO.read(handle, "genbank")
-            gene_file_path = os.path.join(folder_path, f"{key}.fasta")
-            file_paths.append(gene_file_path)
-            logger.log(f"Writing {key} fasta file")
-            with open(gene_file_path, "w") as cdna_file:
-                for feature in record.features:
-                    # write each cds feature to a fasta file per gene
-                    if feature.type == "CDS":
-                        cdna_file.write(f">{feature.qualifiers['protein_id'][0]}\n")
-                        cdna_file.write(f"{feature.location.extract(record).seq}\n")
-    return file_paths
+ensembl = EnsemblRelease(release=99, species="danio_rerio")
 
 
+def get_gene(global_data):
+    global_data.logger.log(f"Searching for {global_data.target_sequence}")
+    ensembl_gene = ensembl.gene_by_id(gene_id=global_data.target_sequence)
+    global_data.logger.log(f"Found {len(ensembl_gene.transcripts)} transcripts for gene {ensembl_gene.gene_name}")
+    global_data.ensembl_gene = ensembl_gene
+
+    return global_data
+
+
+def separate_gene_transcripts(global_data):
+    transcripts = {}
+    valid_transcripts = []
+    for transcript in global_data.ensembl_gene.transcripts:
+        transcripts[transcript.transcript_name] = transcript
+        valid_transcripts.append(transcript.transcript_name)
+    global_data.transcripts = transcripts
+    global_data.valid_transcripts = valid_transcripts
+    return global_data

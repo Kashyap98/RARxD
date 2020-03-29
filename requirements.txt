@@ -1,0 +1,3 @@
+pyensembl
+biopython==1.76
+numpy==1.18.1

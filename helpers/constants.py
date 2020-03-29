@@ -1,0 +1,6 @@
+FOLDER_PREFIX = "run_"
+SAMPLE_DATA_FILE = "sample_data.txt"
+TARGET_SEQUENCE = "target_sequence"
+PROMOTER = "promoter"
+PROMOTER_START = "promoter_start"
+PROMOTER_END = "promoter_end"

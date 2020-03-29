@@ -1,5 +1,5 @@
 {
-  "seq1": "NC_007123.7",
+  "target_sequence": "ENSDARG00000056783",
   "promoter": "AF158020.1", 
   "promoter_start": "836", 
   "promoter_end": "1512"
