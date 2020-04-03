@@ -1,4 +1,5 @@
 
+from Bio import Entrez, SeqIO
 from pyensembl import EnsemblRelease
 
 ensembl = EnsemblRelease(release=99, species="danio_rerio")
@@ -21,4 +22,14 @@ def separate_gene_transcripts(global_data):
         valid_transcripts.append(transcript.transcript_name)
     global_data.transcripts = transcripts
     global_data.valid_transcripts = valid_transcripts
+
+    return global_data
+
+
+def get_promoter_sequence(global_data):
+    Entrez.email = "k.patel1098@gmail.com"
+    handle = Entrez.efetch(db="nucleotide", id=global_data.input_promoter, rettype="gb", retmode="text")
+    record = SeqIO.read(handle, "genbank")
+    global_data.promoter = record
+
     return global_data
