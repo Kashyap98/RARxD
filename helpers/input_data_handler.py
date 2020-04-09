@@ -5,7 +5,7 @@ import jsonpickle
 from helpers.constants import *
 
 
-class GlobalApplicationData:
+class GlobalApplicationData(object):
 
     def __init__(self, folder_path, logger, is_writing=True):
         self.input_data = self.load_json(folder_path)
@@ -25,8 +25,6 @@ class GlobalApplicationData:
         self.transcript_results = []
 
         self.logger.log(f"Input data found: {self.input_data}")
-        if not is_writing:
-            self.export_as_json()
         
     def handle_input_data(self, input_key):
         requested_data = None
@@ -40,31 +38,31 @@ class GlobalApplicationData:
 
     def load_json(self, folder_path):
         # REMEMBER TO REPLACE THIS
-        with open(os.path.join(os.getcwd(), "sample_data.txt"), "r") as sample_file:
+        with open(os.path.join(os.getcwd(), "..", "sample_data.txt"), "r") as sample_file:
             return json.loads(sample_file.read())
 
     def export_as_json(self):
         with open(os.path.join(self.folder_path, f"{INPUT_DATA_FILE_NAME}"), "w") as output_file:
-            output_file.write(jsonpickle.encode(self))
+            output_file.write(jsonpickle.encode(self, keys=True))
 
 
-class GlobalApplicationSettings:
+class GlobalApplicationSettings(object):
 
     def __init__(self, folder_path, is_writing=True):
         self.folder_path = folder_path
+        self.file_path = os.path.join(self.folder_path, f"{SETTINGS_FILE_NAME}")
         self.input_settings = {}
-        if not is_writing:
-            self.load_json()
-            self.export_as_json()
 
     def add_to_settings(self, setting_name, setting_value):
         self.input_settings[setting_name] = setting_value
 
     def load_json(self):
-        # Replace path when ready (self.global_data.folder_path, f"{SETTINGS_FILE_NAME}"))
-        with open(os.path.join(os.getcwd(), "sample_settings.txt"), "r") as input_file:
-            self.input_settings = json.loads(input_file.read())
+        # Replace path when ready (self.global_data.folder_path, f"{SETTINGS_FILE_NAME}")
+        if os.path.exists(self.file_path):
+            with open(self.file_path, "r") as input_file:
+                self.input_settings = json.loads(input_file.read())
+                # self.folder_path = self.input_settings["folder_path"]
 
     def export_as_json(self):
-        with open(os.path.join(self.folder_path, f"{SETTINGS_FILE_NAME}"), "w") as output_file:
-            output_file.write(jsonpickle.encode(self))
+        with open(self.file_path, "w") as output_file:
+            output_file.write(jsonpickle.encode(self.input_settings, keys=True))

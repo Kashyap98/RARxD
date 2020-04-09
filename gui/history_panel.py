@@ -33,11 +33,10 @@ class ViewRunWidget(QPushButton):
         self.parent = parent
         self.button = QPushButton()
         self.button.setText("View Run")
-        self.button.clicked.connect(self.delete_folder)
+        self.button.clicked.connect(self.view_folder)
 
-    def delete_folder(self):
-        if remove_folder(self.folder_path):
-            self.parent.setData()
+    def view_folder(self):
+        self.parent.parent.view_run(self.folder_path)
 
 
 def get_folder_names():
@@ -52,6 +51,7 @@ class HistoryPanel(QWidget):
 
     def __init__(self, q_app, parent=None):
         super(HistoryPanel, self).__init__(parent)
+        self.parent = parent
         self.app = q_app
         self.data = get_folder_names()
         self.table = QTableWidget(0, 3, self)

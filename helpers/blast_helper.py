@@ -6,7 +6,7 @@ import os
 
 
 # organize the blast result in an easily accessible class
-class BlastResult:
+class BlastResult(object):
 
     def __init__(self, global_data, result_string, transcript, record=None, is_local=True, is_writing=True):
         if is_local:
@@ -19,8 +19,6 @@ class BlastResult:
         self.transcript = transcript
         self.record = record
         self.global_data = global_data
-        if is_writing:
-            self.export_as_json()
 
     def parse_result_string(self, input_string):
         single_result_list = input_string.split(',')
@@ -32,7 +30,7 @@ class BlastResult:
     def export_as_json(self):
         with open(os.path.join(self.global_data.folder_path, f"{self.transcript.transcript_name}",
                                f"{self.accession}.json"), "w") as output_file:
-            output_file.write(jsonpickle.encode(self))
+            output_file.write(jsonpickle.encode(self, keys=True))
 
 
 # Perform the blast
@@ -61,8 +59,7 @@ def blast(global_data, transcript):
 def remote_blast(global_data, transcript):
     global_data.logger.log(f"BLASTing {transcript.transcript_name} online... This may take a while")
     blast_results = []
-    result_handle = NCBIWWW.qblast("blastn", "nr", transcript.coding_sequence, megablast=True,
-                                   entrez_query="Danio[genus]")
+    result_handle = NCBIWWW.qblast("blastn", "nr", transcript.coding_sequence, megablast=True, hitlist_size=5)
     blast_records = list(NCBIXML.parse(result_handle))
     if len(blast_records) > 0:
         result = blast_records[0]
@@ -78,7 +75,7 @@ def remote_blast(global_data, transcript):
 
 
 def handle_transcripts(global_data, is_remote=False):
-    transcript_results = []
+    transcript_results = {}
     for transcript in global_data.ensembl_gene.transcripts:
         if transcript.transcript_name not in global_data.valid_transcripts:
             continue
@@ -87,7 +84,7 @@ def handle_transcripts(global_data, is_remote=False):
         else:
             transcript_result = blast(global_data, transcript)
         if transcript_result is not None:
-            transcript_results.append(transcript_result)
+            transcript_results[transcript.transcript_name] = transcript_result
     return transcript_results
 
 
@@ -106,10 +103,18 @@ def remotely_handle_blasting_transcripts(global_data):
 
 
 def get_blasted_transcript_information(global_data):
-    for transcript_list in global_data.transcript_results:
+    for key, transcript_list in global_data.transcript_results.items():
         for transcript in transcript_list:
             Entrez.email = "k.patel1098@gmail.com"
             handle = Entrez.efetch(db="protein", id=transcript.accession, rettype="gb", retmode="text")
             record = SeqIO.read(handle, "genbank")
-            transcript.record = record
+            transcript.record = {"description": record.description, "accessions": record.annotations["accessions"],
+                                 "db_source": record.annotations["db_source"],
+                                 "organism": record.annotations["organism"]}
     return global_data
+
+
+def export_blasted_results(global_data):
+    for transcript, result_list in global_data.transcript_results.items():
+        for result in result_list:
+            result.export_as_json()

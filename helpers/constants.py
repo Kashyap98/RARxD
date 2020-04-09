@@ -4,6 +4,7 @@ TARGET_SEQUENCE = "target_sequence"
 PROMOTER = "promoter"
 PROMOTER_START = "promoter_start"
 PROMOTER_END = "promoter_end"
+BLAST_TYPE = "blast_type"
 INPUT_DATA_FILE_NAME = "input_data.json"
 SETTINGS_FILE_NAME = "run_settings.json"
 
