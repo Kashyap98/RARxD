@@ -22,13 +22,13 @@ class MainDialog(QDialog):
         super(MainDialog, self).__init__(parent)
         self.app = q_app
         self.setWindowFlags(Qt.WindowCloseButtonHint)
-        self.setWindowIcon(QIcon(os.path.join(os.getcwd(), "..", "logo.png")))
+        self.setWindowIcon(QIcon(os.path.join(os.getcwd(), "logo.png")))
         self.dialog_size_util = DialogSizeUtil(self.app)
         self.setWindowTitle("Gene Fusion Tool - COMP 383 Project")
         self.resize(self.dialog_size_util.get_window_width(0.67), self.dialog_size_util.get_window_height(0.5))
         self.move(self.dialog_size_util.center_dialog_width(), self.dialog_size_util.center_dialog_height())
         self.history_panel = HistoryPanel(self.app, self)
-        self.input_panel = InputPanel(self.app)
+        self.input_panel = InputPanel(self.app, self.history_panel)
         self.run_panel = RunPanel(self.app)
         self.main_layout = QHBoxLayout()
         self.left_panel = QVBoxLayout()
@@ -49,12 +49,19 @@ class MainDialog(QDialog):
         self.log_info_file = open(os.path.join(folder_path, f"{os.path.basename(folder_path)}_log.txt"), "r")
         self.settings_file = open(os.path.join(folder_path, "run_settings.json"), "r")
         self.input_data_file = open(os.path.join(folder_path, "input_data.json"), "r")
-        self.run_settings = GlobalApplicationSettings(folder_path, is_writing=False)
+        self.run_settings = GlobalApplicationSettings(folder_path)
 
         self.run_panel.logs_label.setText(self.log_info_file.read())
         self.run_panel.settings_label.setText(self.build_settings_text())
 
         self.build_transcript_tabs(folder_path)
+
+        self.log_info_file.close()
+        self.settings_file.close()
+        self.input_data_file.close()
+
+    def setProgress(self, progress):
+        self.progressBar.setValue(progress)
 
     def build_transcript_tabs(self, folder_path):
         transcripts = []
@@ -73,6 +80,8 @@ class MainDialog(QDialog):
         settings_data = jsonpickle.decode(self.settings_file.read(), keys=True)
         input_data = jsonpickle.decode(self.input_data_file.read(), keys=True)
         settings_string = ""
+        for key, value in input_data.items():
+            settings_string += f"{key}: {value}\n"
         for key, value in settings_data.items():
             settings_string += f"{key}: {value}\n"
         return settings_string

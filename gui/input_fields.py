@@ -19,7 +19,9 @@ class CheckBoxWidget(QWidget):
         self.setLayout(self.layout)
 
     def get_status(self):
-        return self.checkbox.isChecked()
+        current_value = self.checkbox.isChecked()
+        self.checkbox.setChecked(True)
+        return current_value
 
 
 class LineEditWidget(QWidget):
@@ -38,7 +40,9 @@ class LineEditWidget(QWidget):
         self.setLayout(self.layout)
 
     def get_text(self):
-        return self.editbox.text()
+        current_text = self.editbox.text()
+        self.editbox.setText("")
+        return current_text
 
 
 class ComboBoxWidget(QWidget):

@@ -1,8 +1,9 @@
 import glob
 import os
 
+from PySide2.QtGui import QIcon
 from PySide2.QtWidgets import QWidget, QLineEdit, QVBoxLayout, QPushButton, QTableWidgetItem, QListWidget, \
-    QListWidgetItem, QTableWidget
+    QListWidgetItem, QTableWidget, QMessageBox
 from PySide2 import QtCore, QtWidgets
 from PySide2.QtCore import Qt, Slot, Signal
 from cleaner import delete_folders, remove_folder
@@ -14,15 +15,23 @@ class DeleteRunWidget(QPushButton):
 
     def __init__(self, folder_path, parent=None):
         super(DeleteRunWidget, self).__init__(parent)
-        self.folder_path = folder_path
         self.parent = parent
+        self.folder_path = folder_path
         self.button = QPushButton()
         self.button.setText("Delete Run")
         self.button.clicked.connect(self.delete_folder)
 
     def delete_folder(self):
-        if remove_folder(self.folder_path):
-            self.parent.setData()
+        try:
+            remove_folder(self.folder_path)
+            self.parent.set_data()
+        except PermissionError as e:
+            message_box = QMessageBox()
+            message_box.setText("Your OS is preventing us from deleting this file."
+                                " Please select another run before deleting this one.")
+            message_box.setWindowTitle("Gene Fusion Tool File PermissionError")
+            message_box.setWindowIcon(QIcon(os.path.join(os.getcwd(), "logo.png")))
+            message_box.exec_()
 
 
 class ViewRunWidget(QPushButton):
@@ -40,7 +49,7 @@ class ViewRunWidget(QPushButton):
 
 
 def get_folder_names():
-    all_folders = glob.glob(os.path.join(os.getcwd(), "..", f"{FOLDER_PREFIX}*"))
+    all_folders = glob.glob(os.path.join(os.getcwd(), f"{FOLDER_PREFIX}*"))
     output_dataset = {}
     for folder in all_folders:
         output_dataset[os.path.basename(folder)[4:]] = folder
@@ -58,7 +67,7 @@ class HistoryPanel(QWidget):
         self.table.setHorizontalHeaderLabels(('Run Name', 'View Run', 'Delete Run'))
 
         self.layout = QVBoxLayout()
-        self.setData()
+        self.set_data()
 
         self.delete_all_button = QPushButton()
         self.delete_all_button.setText("Delete All Runs")
@@ -69,11 +78,11 @@ class HistoryPanel(QWidget):
         self.setLayout(self.layout)
 
     def delete_all_folders(self):
-        all_folders = glob.glob(os.path.join(os.getcwd(), "..", f"{FOLDER_PREFIX}*"))
+        all_folders = glob.glob(os.path.join(os.getcwd(), f"{FOLDER_PREFIX}*"))
         delete_folders(all_folders)
-        self.setData()
+        self.set_data()
 
-    def setData(self):
+    def set_data(self):
         count = 0
         self.data = get_folder_names()
         self.table.setRowCount(len(self.data))
@@ -81,8 +90,9 @@ class HistoryPanel(QWidget):
             if name != "":
                 name_item = QTableWidgetItem(name)
                 self.table.setItem(count, 0, name_item)
-                self.table.setCellWidget(count, 1, ViewRunWidget(path, parent=self).button)
-                self.table.setCellWidget(count, 2, DeleteRunWidget(path, parent=self).button)
+                self.table.setCellWidget(count, 1, ViewRunWidget(path, self).button)
+                self.table.setCellWidget(count, 2, DeleteRunWidget(path, self).button)
                 count += 1
+        self.app.processEvents()
 
 

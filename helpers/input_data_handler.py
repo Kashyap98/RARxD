@@ -7,8 +7,11 @@ from helpers.constants import *
 
 class GlobalApplicationData(object):
 
-    def __init__(self, folder_path, logger, is_writing=True):
-        self.input_data = self.load_json(folder_path)
+    def __init__(self, folder_path, logger, blast_type, is_gui=False, is_writing=True):
+        try:
+            self.input_data = self.load_json(folder_path)
+        except Exception as e:
+            self.input_data = {}
         self.input_keys = self.input_data.keys()
         self.input_data = self.input_data
         self.folder_path = folder_path
@@ -23,9 +26,19 @@ class GlobalApplicationData(object):
         self.invalid_transcripts = []
         self.promoter = None
         self.transcript_results = []
-
+        if is_gui:
+            self.blast_type = blast_type
+        else:
+            self.blast_type = self.handle_input_data(BLAST_TYPE)
+        self.blast_local = self.handle_blast_type(self.blast_type)
         self.logger.log(f"Input data found: {self.input_data}")
-        
+
+    def handle_blast_type(self, blast_type):
+        if blast_type == "LOCAL":
+            return True
+        else:
+            return False
+
     def handle_input_data(self, input_key):
         requested_data = None
         if input_key in self.input_keys:
@@ -38,7 +51,7 @@ class GlobalApplicationData(object):
 
     def load_json(self, folder_path):
         # REMEMBER TO REPLACE THIS
-        with open(os.path.join(os.getcwd(), "..", "sample_data.txt"), "r") as sample_file:
+        with open(os.path.join(folder_path, f"{INPUT_DATA_FILE_NAME}"), "r") as sample_file:
             return json.loads(sample_file.read())
 
     def export_as_json(self):
@@ -48,10 +61,11 @@ class GlobalApplicationData(object):
 
 class GlobalApplicationSettings(object):
 
-    def __init__(self, folder_path, is_writing=True):
+    def __init__(self, folder_path):
         self.folder_path = folder_path
         self.file_path = os.path.join(self.folder_path, f"{SETTINGS_FILE_NAME}")
         self.input_settings = {}
+        self.load_json()
 
     def add_to_settings(self, setting_name, setting_value):
         self.input_settings[setting_name] = setting_value
@@ -60,7 +74,9 @@ class GlobalApplicationSettings(object):
         # Replace path when ready (self.global_data.folder_path, f"{SETTINGS_FILE_NAME}")
         if os.path.exists(self.file_path):
             with open(self.file_path, "r") as input_file:
-                self.input_settings = json.loads(input_file.read())
+                file_data = json.loads(input_file.read())
+                if file_data != {}:
+                    self.input_settings = file_data
                 # self.folder_path = self.input_settings["folder_path"]
 
     def export_as_json(self):

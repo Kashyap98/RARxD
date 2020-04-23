@@ -2,7 +2,10 @@ import jsonpickle
 from Bio import Entrez, SeqIO
 from Bio.Blast import NCBIXML, NCBIWWW
 from Bio.Blast.Applications import NcbiblastnCommandline
+from Bio.Application import ApplicationError
 import os
+
+from helpers.setup_helper import handle_download_cdna_locally
 
 
 # organize the blast result in an easily accessible class
@@ -37,10 +40,15 @@ class BlastResult(object):
 def blast(global_data, transcript):
     transcript_path = os.path.join(global_data.folder_path, f"{transcript.transcript_name}",
                                    f"{transcript.transcript_name}_transcript.fasta")
+    db_path = os.path.join(os.getcwd(), "zebrafish_cdna_from_genomic.fna")
+    if not os.path.exists(db_path):
+        global_data.logger.log("Unable to find local BLAST database, downloading from NCBI now.")
+        handle_download_cdna_locally()
+
     blastn = NcbiblastnCommandline(query=transcript_path, db=os.path.join(os.getcwd(),
-                                                                          "zfish_cdna_from_genomic.fna"),
-                                   outfmt='"10 sseqid length bitscore"',
-                                   max_target_seqs=5)
+                                                                          "zebrafish_cdna_from_genomic.fna"),
+                                   outfmt='"10 sseqid length bitscore"', max_target_seqs=5)
+
     result = list(blastn())
     result_list = result[0].split("\n")
     blast_results = []

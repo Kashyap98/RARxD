@@ -29,4 +29,3 @@ class Logger:
     def create_log_file(self):
         self.log("Creating Log File")
 
-    # set quiet_mode arg

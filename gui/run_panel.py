@@ -16,7 +16,8 @@ class BlastResultView(QWidget):
         self.ncbi_link.setOpenExternalLinks(True)
         self.name_label = QLabel(f"Accession: {result.accession} - {result.record['description']}"
                                  f" - {result.record['organism']}")
-        self.scores_label = QLabel(f"Bitscore: {result.bitscore} \n {result.match_length}")
+        self.scores_label = QLabel(f"Bitscore: {result.bitscore} \n "
+                                   f"Match Length: {result.match_length} \n")
 
         self.name_label.setTextInteractionFlags(Qt.TextSelectableByMouse)
         self.scores_label.setTextInteractionFlags(Qt.TextSelectableByMouse)
@@ -40,6 +41,7 @@ class TranscriptResultView(QWidget):
         self.transcript_info = QLabel(f"Gene Name: {result.transcript.gene_name} \n"
                                       f"Transcript Name: {result.transcript.transcript_name} \n"
                                       f"Ensembl ID: {result.transcript.transcript_id} \n"
+                                      f"Ensembl Accession: {result.transcript.gene_id} \n"
                                       f"Strand: {result.transcript.strand} \n")
         self.transcript_data = QLabel(f"Biotype: {result.transcript.biotype} \n"
                                       f"Complete: {result.transcript.complete} \n"
@@ -131,12 +133,17 @@ class RunPanel(QWidget):
         inner_transcript_layout.addWidget(QLabel("------------------------------------------- \n"
                                                  "Transcript Information \n"
                                                  "------------------------------------------- \n"))
-        inner_transcript_layout.addWidget(TranscriptResultView(blast_results[0]))
+        try:
+            inner_transcript_layout.addWidget(TranscriptResultView(blast_results[0]))
+        except IndexError as e:
+            pass
         inner_transcript_layout.addWidget(QLabel("------------------------------------------- \n"
                                                  "BLAST RESULTS \n"
                                                  "------------------------------------------- \n"))
-        for result in blast_results:
-            inner_transcript_layout.addWidget(BlastResultView(result))
+        sorted_blast_hits = self.sort_blast_hits(blast_results)
+        if sorted_blast_hits is not None:
+            for result in sorted_blast_hits:
+                inner_transcript_layout.addWidget(BlastResultView(result))
 
         transcript_inner_widget.setLayout(inner_transcript_layout)
         scrollable_view.setWidget(transcript_inner_widget)
@@ -144,3 +151,20 @@ class RunPanel(QWidget):
         transcript_tab_widget.setStyleSheet("background-color: #FFFFFF")
 
         self.tabs_widget.addTab(transcript_tab_widget, transcript_name)
+
+    def sort_blast_hits(self, blast_results):
+        if len(blast_results) == 0:
+            return None
+        count = 0
+        blast_dict = {}
+        blast_list = []
+        for blast_result in blast_results:
+            blast_dict[blast_result.bitscore] = count
+            blast_list.append(int(blast_result.bitscore))
+            count += 1
+        sorted_blast = sorted(blast_list, reverse=True)
+        final_sorted_blast = []
+        for pos in sorted_blast:
+            blast_result_pos = blast_dict[str(pos)]
+            final_sorted_blast.append(blast_results[blast_result_pos])
+        return final_sorted_blast
