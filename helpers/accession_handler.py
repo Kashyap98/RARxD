@@ -1,7 +1,7 @@
 import os
 
 from Bio import Entrez, SeqIO
-from pyensembl import EnsemblRelease
+from pyensembl_custom import EnsemblRelease
 
 ensembl = EnsemblRelease(release=99, species="danio_rerio")
 
@@ -14,7 +14,8 @@ def get_gene(global_data):
     except ValueError as value_error:
         global_data.logger.log(f"Could not find gene in the ensembl database Error: {value_error}")
         global_data.logger.log(f" Attempting to download danio_rerio information")
-        os.system("pyensembl install --release 99 --species danio_rerio")
+        ensembl.download()
+        ensembl.index()
         ensembl_gene = ensembl.gene_by_id(gene_id=global_data.target_sequence)
 
     global_data.logger.log(f"Found {len(ensembl_gene.transcripts)} transcripts for gene {ensembl_gene.gene_name}")

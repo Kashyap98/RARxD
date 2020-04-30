@@ -48,7 +48,7 @@ class GlobalApplicationData(object):
                                BLAST_TYPE: args.blast_type[0]}
 
     def handle_blast_type(self, blast_type):
-        if blast_type == "LOCAL":
+        if blast_type == "L":
             return True
         else:
             return False
