@@ -3,7 +3,7 @@ import os
 
 from PySide2.QtGui import QIcon
 from PySide2.QtWidgets import QWidget, QLineEdit, QVBoxLayout, QPushButton, QTableWidgetItem, QListWidget, \
-    QListWidgetItem, QTableWidget, QMessageBox
+    QListWidgetItem, QTableWidget, QMessageBox, QApplication
 from PySide2 import QtCore, QtWidgets
 from PySide2.QtCore import Qt, Slot, Signal
 from cleaner import delete_folders, remove_folder
@@ -28,7 +28,8 @@ class DeleteRunWidget(QPushButton):
         except PermissionError as e:
             message_box = QMessageBox()
             message_box.setText("Your OS is preventing us from deleting this file."
-                                " Please select another run before deleting this one.")
+                                " Please select another run or remove any processes with a file lock "
+                                "before attempting to delete again.")
             message_box.setWindowTitle("Gene Fusion Tool File PermissionError")
             message_box.setWindowIcon(QIcon(os.path.join(os.getcwd(), "logo.png")))
             message_box.exec_()
@@ -45,7 +46,15 @@ class ViewRunWidget(QPushButton):
         self.button.clicked.connect(self.view_folder)
 
     def view_folder(self):
-        self.parent.parent.view_run(self.folder_path)
+        try:
+            self.parent.parent.view_run(self.folder_path)
+        except Exception as e:
+            message_box = QMessageBox()
+            message_box.setWindowTitle("Gene Fusion Tool File FileError")
+            message_box.setText(str(e))
+            message_box.setDefaultButton(QMessageBox.Ok)
+            message_box.setWindowIcon(QIcon(os.path.join(os.getcwd(), "logo.png")))
+            message_box.exec_()
 
 
 def get_folder_names():
@@ -73,7 +82,12 @@ class HistoryPanel(QWidget):
         self.delete_all_button.setText("Delete All Runs")
         self.delete_all_button.clicked.connect(self.delete_all_folders)
 
-        self.layout.addWidget(self.delete_all_button, 1)
+        self.refresh_runs_button = QPushButton()
+        self.refresh_runs_button.setText("Refresh Runs")
+        self.refresh_runs_button.clicked.connect(self.set_data)
+
+        self.layout.addWidget(self.refresh_runs_button, 0.5)
+        self.layout.addWidget(self.delete_all_button, 0.5)
         self.layout.addWidget(self.table, 1)
         self.setLayout(self.layout)
 

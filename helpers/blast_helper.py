@@ -40,13 +40,13 @@ class BlastResult(object):
 def blast(global_data, transcript):
     transcript_path = os.path.join(global_data.folder_path, f"{transcript.transcript_name}",
                                    f"{transcript.transcript_name}_transcript.fasta")
-    db_path = os.path.join(os.getcwd(), "zebrafish_cdna_from_genomic.fna")
+    db_path = os.path.join(os.getcwd(), "zebrafish_cdna_from_genomic.fasta.nhr")
     if not os.path.exists(db_path):
         global_data.logger.log("Unable to find local BLAST database, downloading from NCBI now.")
         handle_download_cdna_locally()
 
     blastn = NcbiblastnCommandline(query=transcript_path, db=os.path.join(os.getcwd(),
-                                                                          "zebrafish_cdna_from_genomic.fna"),
+                                                                          "zebrafish_cdna_from_genomic.fasta"),
                                    outfmt='"10 sseqid length bitscore"', max_target_seqs=5)
 
     result = list(blastn())

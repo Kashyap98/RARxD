@@ -7,14 +7,11 @@ from helpers.constants import *
 
 class GlobalApplicationData(object):
 
-    def __init__(self, folder_path, logger, blast_type, is_gui=False, is_writing=True):
-        try:
-            self.input_data = self.load_json(folder_path)
-        except Exception as e:
-            self.input_data = {}
+    def __init__(self, folder_path, logger, blast_type, is_gui=False, is_writing=True, args=None):
+        self.folder_path = folder_path
+        self.handle_gui_command_line_input(args, is_gui)
         self.input_keys = self.input_data.keys()
         self.input_data = self.input_data
-        self.folder_path = folder_path
         self.logger = logger
         self.target_sequence = self.handle_input_data(TARGET_SEQUENCE)
         self.input_promoter = self.handle_input_data(PROMOTER)
@@ -33,6 +30,23 @@ class GlobalApplicationData(object):
         self.blast_local = self.handle_blast_type(self.blast_type)
         self.logger.log(f"Input data found: {self.input_data}")
 
+    def handle_gui_command_line_input(self, args, is_gui):
+        if is_gui:
+            try:
+                self.input_data = self.load_json(self.folder_path)
+            except Exception as e:
+                self.input_data = {}
+        else:
+            if args.gene_id[0] is None:
+                self.logger.log("Missing Gene ID. Required to run this program")
+                exit()
+            if args.promoter_id[0] is None:
+                self.logger.log("Missing Promoter ID. Required to run this program")
+                exit()
+
+            self.input_data = {TARGET_SEQUENCE: args.gene_id[0], PROMOTER: args.promoter_id[0],
+                               BLAST_TYPE: args.blast_type[0]}
+
     def handle_blast_type(self, blast_type):
         if blast_type == "LOCAL":
             return True
@@ -50,7 +64,6 @@ class GlobalApplicationData(object):
         self.invalid_transcripts.append(transcript_name)
 
     def load_json(self, folder_path):
-        # REMEMBER TO REPLACE THIS
         with open(os.path.join(folder_path, f"{INPUT_DATA_FILE_NAME}"), "r") as sample_file:
             return json.loads(sample_file.read())
 

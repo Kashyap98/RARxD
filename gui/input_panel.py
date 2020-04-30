@@ -5,7 +5,7 @@ from PySide2 import QtCore
 from gui.input_fields import *
 from helpers.setup_helper import handle_setup, GlobalApplicationSettings, os
 from helpers.constants import *
-from helpers.worker_thread_helper import Worker
+from helpers.worker_thread_helper import RunHelperThread
 
 PROMOTERS_DICT = {"HSP70": "AF158020.1"}
 
@@ -34,7 +34,6 @@ class InputPanel(QWidget):
         self.filter_stop_codon = CheckBoxWidget("Filter Stop Codon Missing Transcripts?")
 
         self.start_button = QPushButton()
-        self.progress_bar = QProgressBar()
         self.start_button.setText("Start Run")
         self.start_button.clicked.connect(self.start_run)
 
@@ -48,7 +47,6 @@ class InputPanel(QWidget):
         self.filter_layout.addWidget(self.filter_start_codon)
         self.filter_layout.addWidget(self.filter_stop_codon)
 
-        self.submit_layout.addWidget(self.progress_bar)
         self.submit_layout.addWidget(self.start_button)
 
         self.layout.addLayout(self.input_layout)
@@ -85,16 +83,11 @@ class InputPanel(QWidget):
 
             controller_path = os.path.join(os.getcwd(), "controller.py")
 
-            worker = Worker(controller_path, run_name)
-            worker.moveToThread(self.worker_thread)
-            self.worker_thread.started.connect(worker.execute_run)
-            self.worker_thread.finished.connect(self.refresh_data)
-            self.worker_thread.start()
-
-    @QtCore.Slot()
-    def refresh_data(self):
-        print("finished")
-        self.history_panel.set_data()
+            helper_thread = RunHelperThread(command=f"python {controller_path} --name {run_name} --gene_id {ensembl_id}"
+                                                    f" --promoter_id {PROMOTERS_DICT[promoter_id]}"
+                                                    f" --blast_type {blast_type}")
+            if not helper_thread.isAlive():
+                self.history_panel.set_data()
 
     def export_input_data(self, folder_path, output_data):
         with open(os.path.join(folder_path, INPUT_DATA_FILE_NAME), "w") as output_file:

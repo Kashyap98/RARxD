@@ -82,4 +82,8 @@ def export_genbank_files(global_data):
 
             output_file = open(os.path.join(global_data.folder_path, f"{transcript.transcript_name}",
                                             f'{transcript.transcript_name}.gb'), 'w')
+            output_fasta_file = open(os.path.join(global_data.folder_path, f"{transcript.transcript_name}",
+                                                  f'{transcript.transcript_name}_fusion.fasta'), 'w')
             SeqIO.write(record, output_file, 'genbank')
+            SeqIO.write(SeqRecord(coding_sequence, f"{transcript.transcript_name} - {transcript.transcript_id}",
+                                  description="Fusion"), output_fasta_file, 'fasta')
