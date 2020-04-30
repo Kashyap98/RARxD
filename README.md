@@ -1,4 +1,4 @@
-# Gene Fusion Tools - RARxD
+# Gene Fusion Tool
 
 ## Purpose - Project Abstract
 Gene fusion is a useful method for researchers to study the expression and functions of various genes in eukaryotic organisms. Researchers that study zebrafish (Danio rerio) use the HSP70 promoter to study the expression of genes through temperature control. Promoter-gene fusion allows scientists to fuse genes that are not naturally influenced by the HSP70 promoter to the target gene. In order to create a proper fusion, one must determine which gene transcript they would like to fuse to the promoter region. An open source software tool can be useful to aggregate data necessary to make this decision. This gene fusion tool, available at https://github.com/Kashyap98/gene_fusion_tool, aggregates Ensembl transcript annotations and gene identity in NCBI’s BLAST databases to assist the scientist in creating the proper fusion. The tool outputs this information in a standardized format for comparison as well as a properly fused sequence so the researcher may perform Gibson Assembly with the necessary primers.
