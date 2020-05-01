@@ -47,8 +47,12 @@ class MainDialog(QDialog):
     def view_run(self, folder_path):
         self.run_panel.init_tabs()
         self.log_info_file = open(os.path.join(folder_path, f"{os.path.basename(folder_path)}_log.txt"), "r")
-        self.settings_file = open(os.path.join(folder_path, "run_settings.json"), "r")
-        self.input_data_file = open(os.path.join(folder_path, "input_data.json"), "r")
+        try:
+            self.settings_file = open(os.path.join(folder_path, "run_settings.json"), "r")
+            self.input_data_file = open(os.path.join(folder_path, "input_data.json"), "r")
+        except Exception as e:
+            self.settings_file = None
+            self.input_data_file = None
         self.run_settings = GlobalApplicationSettings(folder_path)
 
         self.run_panel.logs_label.setText(self.log_info_file.read())
@@ -80,10 +84,12 @@ class MainDialog(QDialog):
         settings_data = jsonpickle.decode(self.settings_file.read(), keys=True)
         input_data = jsonpickle.decode(self.input_data_file.read(), keys=True)
         settings_string = ""
-        for key, value in input_data.items():
-            settings_string += f"{key}: {value}\n"
-        for key, value in settings_data.items():
-            settings_string += f"{key}: {value}\n"
+        if input_data is not None:
+            for key, value in input_data.items():
+                settings_string += f"{key}: {value}\n"
+        if settings_data is not None:
+            for key, value in settings_data.items():
+                settings_string += f"{key}: {value}\n"
         return settings_string
 
 

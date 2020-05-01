@@ -29,6 +29,7 @@ class GlobalApplicationData(object):
             self.blast_type = self.handle_input_data(BLAST_TYPE)
         self.blast_local = self.handle_blast_type(self.blast_type)
         self.logger.log(f"Input data found: {self.input_data}")
+        self.export_as_json()
 
     def handle_gui_command_line_input(self, args, is_gui):
         if is_gui:
@@ -69,7 +70,7 @@ class GlobalApplicationData(object):
 
     def export_as_json(self):
         with open(os.path.join(self.folder_path, f"{INPUT_DATA_FILE_NAME}"), "w") as output_file:
-            output_file.write(jsonpickle.encode(self, keys=True))
+            output_file.write(jsonpickle.encode(self.input_data))
 
 
 class GlobalApplicationSettings(object):

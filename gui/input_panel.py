@@ -78,14 +78,15 @@ class InputPanel(QWidget):
             output_settings.add_to_settings(FILTER_TRANSCRIPT_STOP_CODON, filter_stop_codon)
             output_settings.export_as_json()
 
-            output_data = {TARGET_SEQUENCE: ensembl_id, PROMOTER: PROMOTERS_DICT[promoter_id], BLAST_TYPE: blast_type}
+            output_data = {TARGET_SEQUENCE: ensembl_id, PROMOTER: PROMOTERS_DICT[promoter_id],
+                           BLAST_TYPE: blast_type[0]}
             self.export_input_data(folder_path, output_data)
 
             controller_path = os.path.join(os.getcwd(), "controller.py")
 
             helper_thread = RunHelperThread(command=f"python {controller_path} --name {run_name} --gene_id {ensembl_id}"
                                                     f" --promoter_id {PROMOTERS_DICT[promoter_id]}"
-                                                    f" --blast_type {blast_type}")
+                                                    f" --blast_type {blast_type[0]}")
             if not helper_thread.isAlive():
                 self.history_panel.set_data()
 

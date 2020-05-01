@@ -42,27 +42,38 @@ progress_bar = ProgressBarThread(app=app, max_completed=10)
 global_data, global_settings = handle_setup(parser=parser, gui=False)
 progress_bar.increment_progress("Finished set up tasks")
 # run all of the functions from the helper scripts
+# get gene from ensembl
 global_data = get_gene(global_data)
 progress_bar.increment_progress("Retrieved gene from Ensembl")
+# separate transcripts from ensembl
 global_data = separate_gene_transcripts(global_data)
 progress_bar.increment_progress("Separated gene transcripts")
+# get promoter sequence from NCBI
 global_data = get_promoter_sequence(global_data)
 progress_bar.increment_progress("Retrieved promoter from NCBI")
+# filter all transcripts
 global_data = filter_transcripts(global_data, global_settings)
 progress_bar.increment_progress("Filtered transcripts")
+# validate transcripts after filter
 handle_transcripts_post_filtering(global_data)
 progress_bar.increment_progress("Post filter transcript validation")
 
+# perform the blast query
 if global_data.blast_local:
     global_data = locally_handle_blasting_transcripts(global_data)
     global_data = get_blasted_transcript_information(global_data)
 else:
     global_data = remotely_handle_blasting_transcripts(global_data)
+
 progress_bar.increment_progress("Completed BLAST analysis")
+
+# export blast results
 export_blasted_results(global_data)
 progress_bar.increment_progress("Exported BLAST results")
+# export genbank and fasta files
 export_genbank_files(global_data)
 progress_bar.increment_progress("Exported Genbank results")
+# done running
 global_data.logger.log("Completed running all scripts")
 progress_bar.increment_progress("Done")
 

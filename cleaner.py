@@ -10,6 +10,7 @@ YES = ["yes", "y"]
 NO = ["no", "n"]
 
 
+# get the user choice for the cleaner
 def get_user_choice():
     while True:
         choice = input().lower()
@@ -25,6 +26,7 @@ print("Are you sure you want to delete all miniProject test directories? This ca
 print("[y/n]")
 
 
+# remove one folder
 def remove_folder(folder_path):
     folder_deleted = False
     if os.path.isdir(folder_path):
@@ -34,6 +36,7 @@ def remove_folder(folder_path):
     return folder_deleted
 
 
+# remove all folders
 def delete_folders(all_folders):
     print("Deleting folders.")
     delete_count = 0

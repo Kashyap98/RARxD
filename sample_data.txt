@@ -1,4 +1,4 @@
 {
-  "target_sequence": "ENSDARG00000056783",
-  "promoter": "AF158020.1", 
+  "gene_id": "ENSDARG00000056783",
+  "promoter_id": "AF158020.1",
 }

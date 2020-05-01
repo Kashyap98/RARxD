@@ -11,6 +11,7 @@ from cleaner import delete_folders, remove_folder
 from helpers.constants import *
 
 
+# Delete button
 class DeleteRunWidget(QPushButton):
 
     def __init__(self, folder_path, parent=None):
@@ -22,6 +23,7 @@ class DeleteRunWidget(QPushButton):
         self.button.clicked.connect(self.delete_folder)
 
     def delete_folder(self):
+        # attempt the delete, if it does not work it is likely a PermissionError
         try:
             remove_folder(self.folder_path)
             self.parent.set_data()
@@ -35,6 +37,7 @@ class DeleteRunWidget(QPushButton):
             message_box.exec_()
 
 
+# View Run Button
 class ViewRunWidget(QPushButton):
 
     def __init__(self, folder_path, parent=None):
@@ -45,6 +48,7 @@ class ViewRunWidget(QPushButton):
         self.button.setText("View Run")
         self.button.clicked.connect(self.view_folder)
 
+    # View the run, if there is an error the Run is likely corrupted
     def view_folder(self):
         try:
             self.parent.parent.view_run(self.folder_path)
@@ -57,6 +61,7 @@ class ViewRunWidget(QPushButton):
             message_box.exec_()
 
 
+# Get all the folders in the folder
 def get_folder_names():
     all_folders = glob.glob(os.path.join(os.getcwd(), f"{FOLDER_PREFIX}*"))
     output_dataset = {}
@@ -65,6 +70,7 @@ def get_folder_names():
     return output_dataset
 
 
+# Handle viewing and running of the files
 class HistoryPanel(QWidget):
 
     def __init__(self, q_app, parent=None):
@@ -96,6 +102,7 @@ class HistoryPanel(QWidget):
         delete_folders(all_folders)
         self.set_data()
 
+    # Create all the folders in the panel
     def set_data(self):
         count = 0
         self.data = get_folder_names()

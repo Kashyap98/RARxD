@@ -7,6 +7,7 @@ from PySide2.QtWidgets import QDialog, QApplication, QLabel, QVBoxLayout, QProgr
 from gui.dialog_size_util import DialogSizeUtil
 
 
+# Run the progress bar every time a run is made
 class ProgressBarUtil(QDialog):
 
     def __init__(self, app=QApplication.instance(), max_completed=100, title="Performing Run"):
@@ -71,6 +72,7 @@ class ProgressBarUtil(QDialog):
             self.keep_processing_events()
 
 
+# multithread the progress bar
 class ProgressBarThread(threading.Thread):
 
     def __init__(self, app=QApplication.instance(), max_completed=100, title="Starting Run"):

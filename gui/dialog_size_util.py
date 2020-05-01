@@ -1,5 +1,6 @@
 
 
+# Handle resizing and position of the dialog.
 class DialogSizeUtil:
 
     def __init__(self, q_app):
